@@ -5,7 +5,7 @@ import CharInfo from '../charInfo/CharInfo';
 
 import decoration from '../../resources/img/vision.png';
 
-const App = () => {
+export const App = () => {
   return (
     <div className='app'>
       <AppHeader />
@@ -20,5 +20,3 @@ const App = () => {
     </div>
   );
 };
-
-export default App;
