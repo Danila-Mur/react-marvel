@@ -42,8 +42,8 @@ export class CharList extends Component {
         <ul className='char__grid'>
           {errorMessage}
           {spiner}
-          {this.state.chars.map((item, i) => (
-            <li key={i} className='char__item'>
+          {this.state.chars.map((item) => (
+            <li key={item.id} className='char__item' onClick={() => this.props.onCharSelected(item.id)}>
               <img
                 src={item.thumbnail}
                 style={{
