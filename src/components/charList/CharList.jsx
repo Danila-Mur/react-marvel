@@ -8,31 +8,53 @@ import './charList.scss'
 
 export class CharList extends Component {
   state = {
-    chars: [],
+    charList: [],
     loading: true,
     error: false,
+    newItemLoading: false,
+    offset: 210,
+    charEnded: false,
   }
 
   marvelService = new MarvelService()
 
   componentDidMount() {
-    this.updateAllChars()
+    this.onRequest()
   }
 
-  onCharLoaded = (chars) => {
-    this.setState({ chars, loading: false })
+  onRequest = (offset) => {
+    this.onCharListLoading()
+
+    this.marvelService.getAllCharacters(offset).then(this.onCharListLoaded).catch(this.onError)
+  }
+
+  onCharListLoading = () => {
+    this.setState({
+      newItemLoading: true,
+    })
+  }
+
+  onCharListLoaded = (newCharList) => {
+    let ended = false
+    if (newCharList.lenght < 9) {
+      ended = true
+    }
+
+    this.setState(({ charList, offset }) => ({
+      charList: [...charList, ...newCharList],
+      loading: false,
+      newItemLoading: false,
+      offset: offset + 9,
+      charEnded: ended,
+    }))
   }
 
   onError = () => {
     this.setState({ loading: false, error: true })
   }
 
-  updateAllChars = () => {
-    this.marvelService.getAllCharacters().then(this.onCharLoaded).catch(this.onError)
-  }
-
   render() {
-    const { loading, error } = this.state
+    const { loading, error, offset, newItemLoading, charEnded } = this.state
 
     const errorMessage = error ? <ErrorMessage /> : null
     const spiner = loading ? <Spinner /> : null
@@ -42,8 +64,12 @@ export class CharList extends Component {
         <ul className='char__grid'>
           {errorMessage}
           {spiner}
-          {this.state.chars.map((item) => (
-            <li key={item.id} className='char__item' onClick={() => this.props.onCharSelected(item.id)}>
+          {this.state.charList.map((item) => (
+            <li
+              key={item.id}
+              className='char__item'
+              onClick={() => this.props.onCharSelected(item.id)}
+            >
               <img
                 src={item.thumbnail}
                 style={{
@@ -63,7 +89,12 @@ export class CharList extends Component {
             <div className='char__name'>Abyss</div>
           </li> */}
         </ul>
-        <button className='button button__main button__long'>
+        <button
+          onClick={() => this.onRequest(offset)}
+          disabled={newItemLoading}
+          style={{ display: charEnded ? 'none' : 'block' }}
+          className='button button__main button__long'
+        >
           <div className='inner'>load more</div>
         </button>
       </div>
